@@ -1,21 +1,10 @@
-export const fuelRequired = mass => Math.floor(mass / 3) - 2;
+import { input as modules } from "./day01.js";
+import { fuelRequiredForModules } from "./fuel.js";
+console.log(fuelRequiredForModules(modules));
 
-export const fuelRequiredForModule = module => {
-  let sum = fuelRequired(module);
-  let remaining = sum;
-
-  while (remaining > 0) {
-    remaining = fuelRequired(remaining);
-    if (remaining > 0) {
-      sum += remaining;
-    }
-  }
-
-  return sum;
-};
-
-export const fuelRequiredForModules = modules =>
-  modules.reduce((sum, next) => fuelRequiredForModule(next) + sum, 0);
-
-import { input } from "./day01.js";
-console.log(fuelRequiredForModules(input));
+import { input as program } from "./day02.js";
+import { operate } from "./opcode.js";
+const values = program.split(",");
+values[1] = 12;
+values[2] = 2;
+console.log(operate(values.join(",")));

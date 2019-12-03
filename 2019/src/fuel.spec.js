@@ -2,7 +2,7 @@ import {
   fuelRequired,
   fuelRequiredForModules,
   fuelRequiredForModule
-} from "./index.js";
+} from "./fuel.js";
 
 describe("fuel requirements", () => {
   it("the fuel required is based on the mass", () => {
