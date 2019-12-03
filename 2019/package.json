@@ -15,7 +15,7 @@
     "nodemon": "^2.0.1"
   },
   "scripts": {
-    "test": "babel-jest --watch",
+    "test": "jest --watch",
     "start": "nodemon --exec babel-node src/index.js"
   },
   "babel": {

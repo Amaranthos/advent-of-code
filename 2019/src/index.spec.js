@@ -1,4 +1,8 @@
-import { fuelRequired, sumFuelRequired } from "./index.js";
+import {
+  fuelRequired,
+  fuelRequiredForModules,
+  fuelRequiredForModule
+} from "./index.js";
 
 describe("fuel requirements", () => {
   it("the fuel required is based on the mass", () => {
@@ -8,7 +12,13 @@ describe("fuel requirements", () => {
     expect(fuelRequired(100756)).toBe(33583);
   });
 
+  it("can calculate the fuel required for a module", () => {
+    expect(fuelRequiredForModule(14)).toBe(2);
+    expect(fuelRequiredForModule(1969)).toBe(966);
+  });
+
   it("can calculate the fuel requirement for a list of modules", () => {
-    expect(sumFuelRequired([12, 14])).toBe(4);
+    expect(fuelRequiredForModules([12, 14])).toBe(4);
+    expect(fuelRequiredForModules([12, 1969])).toBe(968);
   });
 });
