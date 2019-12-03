@@ -1,5 +1,11 @@
-export const operate = program => {
-  const opcodes = program.split(",");
+export const instructionSet = (noun, verb, program) => {
+  const values = program.split(",");
+  values[1] = noun;
+  values[2] = verb;
+  return values;
+};
+
+export const operate = opcodes => {
   let index = 0;
 
   while (opcodes[index] !== "99") {
@@ -24,5 +30,7 @@ export const operate = program => {
     }
   }
 
-  return opcodes.join(",");
+  return opcodes;
 };
+
+export const runProgram = program => operate(program.split(",")).join(",");
