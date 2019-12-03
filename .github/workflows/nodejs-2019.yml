@@ -13,9 +13,10 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: '12.x'
-    - run: cd 2019
     - run: yarn
+      working-directory: "2019"
     - run: yarn test
+      working-directory: "2019"
     
       env:
         CI: true
