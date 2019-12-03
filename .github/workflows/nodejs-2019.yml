@@ -1,4 +1,4 @@
-name: Node CI
+name: 2019 CI
 
 on: [push]
 
