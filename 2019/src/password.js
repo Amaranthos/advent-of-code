@@ -29,12 +29,17 @@ export const isDescending = password =>
     .split("")
     .reduce(isDescendingReducer) === true;
 
-export const hasSameAdjacentReducer = (prev, next, i, arr) =>
-  prev === true || prev === next ? true : next;
+export const hasSameAdjacentReducer = (prev, next, i, arr) => {
+  console.log("i:", prev, next, i, arr);
+  if (prev !== undefined && prev === true) {
+    return next === arr[i - 1] ? next : true;
+  }
+  return next === prev ? true : next;
+};
 
 export const isDescendingReducer = (prev, next, i, arr) =>
   prev !== undefined && (prev === true || parseInt(next) < parseInt(prev))
     ? true
     : next;
 
-console.log(calc());
+// console.log(calc());
