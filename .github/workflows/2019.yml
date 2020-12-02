@@ -1,6 +1,8 @@
 name: 2019 CI
 
-on: [push]
+on:
+  push:
+    paths: 2019/
 
 jobs:
   build:
