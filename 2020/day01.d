@@ -1,25 +1,24 @@
 import std.stdio;
 import std.conv : to;
-import std.algorithm : reduce, cartesianProduct;
+import std.algorithm : reduce, cartesianProduct, sum;
+import std.range : only;
+import std.typecons : Tuple, tuple;
 
 void main()
 {
 	const entries = readInput();
-	writeln(entries.sum3To2020().reduce!((a, b) => a * b));
 
-	writeln(cartesianProduct(entries, entries));
+	writeln(entries.sumTo2020().reduce!((a, b) => a * b));
+	writeln(entries.sum3To2020().reduce!((a, b) => a * b));
 }
 
-immutable(uint[2]) sumTo2020(const uint[] entries) pure nothrow @safe
+auto sumTo2020(const uint[] entries) pure nothrow @safe
 {
-	foreach (entry1; entries)
+	foreach (pair; cartesianProduct(entries, entries))
 	{
-		foreach (entry2; entries)
+		if (pair.expand.only.sum == 2020)
 		{
-			if (entry1 + entry2 == 2020)
-			{
-				return [entry1, entry2];
-			}
+			return pair;
 		}
 	}
 	assert(false);
@@ -28,22 +27,16 @@ immutable(uint[2]) sumTo2020(const uint[] entries) pure nothrow @safe
 unittest
 {
 	const entries = sumTo2020([1721, 979, 366, 299, 675, 1456]);
-	assert(entries == [1721, 299]);
+	assert(entries == tuple(1721, 299));
 }
 
-immutable(uint[3]) sum3To2020(const uint[] entries) pure nothrow @safe
+auto sum3To2020(const uint[] entries) pure nothrow @safe
 {
-	foreach (entry1; entries)
+	foreach (pair; cartesianProduct(entries, entries, entries))
 	{
-		foreach (entry2; entries)
+		if (pair.expand.only.sum == 2020)
 		{
-			foreach (entry3; entries)
-			{
-				if (entry1 + entry2 + entry3 == 2020)
-				{
-					return [entry1, entry2, entry3];
-				}
-			}
+			return pair;
 		}
 	}
 	assert(false);
@@ -52,7 +45,7 @@ immutable(uint[3]) sum3To2020(const uint[] entries) pure nothrow @safe
 unittest
 {
 	const entries = sum3To2020([1721, 979, 366, 299, 675, 1456]);
-	assert(entries == [979, 366, 675]);
+	assert(entries == tuple(979, 366, 675));
 }
 
 uint[] readInput()
