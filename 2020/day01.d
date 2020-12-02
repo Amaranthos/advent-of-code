@@ -1,20 +1,23 @@
 import std.stdio;
 import std.conv : to;
-import std.algorithm : reduce, cartesianProduct, sum;
-import std.range : only;
+import std.algorithm : reduce, cartesianProduct, sum, map;
+import std.range : only, iota;
 import std.typecons : Tuple, tuple;
+import std.array : array;
+import std.typetuple : TypeTuple;
 
 void main()
 {
 	const entries = readInput();
 
-	writeln(entries.sumTo2020().reduce!((a, b) => a * b));
-	writeln(entries.sum3To2020().reduce!((a, b) => a * b));
+	writeln(entries.findSumsTo2020!2().reduce!((a, b) => a * b));
+	writeln(entries.findSumsTo2020!3().reduce!((a, b) => a * b));
 }
 
-auto sumTo2020(const uint[] entries) pure nothrow @safe
+auto findSumsTo2020(uint count)(const uint[] entries) pure @safe
 {
-	foreach (pair; cartesianProduct(entries, entries))
+	auto array = to!(uint[][count])(iota(count).map!((a) => entries).array);
+	foreach (pair; asTuple!(uint[], count)(array).expand.cartesianProduct)
 	{
 		if (pair.expand.only.sum == 2020)
 		{
@@ -26,26 +29,8 @@ auto sumTo2020(const uint[] entries) pure nothrow @safe
 
 unittest
 {
-	const entries = sumTo2020([1721, 979, 366, 299, 675, 1456]);
-	assert(entries == tuple(1721, 299));
-}
-
-auto sum3To2020(const uint[] entries) pure nothrow @safe
-{
-	foreach (pair; cartesianProduct(entries, entries, entries))
-	{
-		if (pair.expand.only.sum == 2020)
-		{
-			return pair;
-		}
-	}
-	assert(false);
-}
-
-unittest
-{
-	const entries = sum3To2020([1721, 979, 366, 299, 675, 1456]);
-	assert(entries == tuple(979, 366, 675));
+	assert(findSumsTo2020!2([1721, 979, 366, 299, 675, 1456]) == tuple(1721, 299));
+	assert(findSumsTo2020!3([1721, 979, 366, 299, 675, 1456]) == tuple(979, 366, 675));
 }
 
 uint[] readInput()
@@ -59,4 +44,21 @@ uint[] readInput()
 	}
 
 	return result;
+}
+
+template list(T, size_t n)
+{
+	static if (n <= 1)
+	{
+		alias list = T;
+	}
+	else
+	{
+		alias list = TypeTuple!(T, list!(T, n - 1));
+	}
+}
+
+auto asTuple(T, size_t n)(ref T[n] arr)
+{
+	return Tuple!(list!(T, n))(arr);
 }
