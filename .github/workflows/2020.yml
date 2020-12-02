@@ -2,7 +2,8 @@ name: 2020 CI
 
 on:
   push:
-    paths: 2020/
+    paths: 
+      - 2020/**
 
 
 jobs:
