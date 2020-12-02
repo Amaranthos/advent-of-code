@@ -1,14 +1,16 @@
 import std.stdio;
 import std.conv : to;
-import std.algorithm : reduce;
+import std.algorithm : reduce, cartesianProduct;
 
 void main()
 {
 	const entries = readInput();
 	writeln(entries.sum3To2020().reduce!((a, b) => a * b));
+
+	writeln(cartesianProduct(entries, entries));
 }
 
-uint[2] sumTo2020(const uint[] entries)
+immutable(uint[2]) sumTo2020(const uint[] entries) pure nothrow @safe
 {
 	foreach (entry1; entries)
 	{
@@ -29,7 +31,7 @@ unittest
 	assert(entries == [1721, 299]);
 }
 
-uint[3] sum3To2020(const uint[] entries)
+immutable(uint[3]) sum3To2020(const uint[] entries) pure nothrow @safe
 {
 	foreach (entry1; entries)
 	{
