@@ -1,0 +1,14 @@
+name: 2020 CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use dmd
+        uses: actions/dmd        
+      - run: dmd -unittest -run *.d
+
