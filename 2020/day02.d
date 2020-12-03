@@ -1,5 +1,6 @@
 import std.array;
 import std.conv;
+import std.range;
 import std.regex;
 import std.stdio;
 import std.string;
@@ -9,7 +10,7 @@ void main()
 	uint count = 0;
 	foreach (entry; File("day02.input", "r").byLineCopy())
 	{
-		auto ss = split(entry, ":");
+		auto ss = split(entry, ": ");
 		Policy policy = parsePolicy(ss[0]);
 		if (policy.isValid(ss[1]))
 		{
@@ -22,8 +23,8 @@ void main()
 
 struct Policy
 {
-	int min;
-	int max;
+	int posAllowed;
+	int posDisallowed;
 	char character;
 }
 
@@ -42,18 +43,15 @@ unittest
 
 bool isValid(Policy policy, string password)
 {
-	int[char] counts;
-	foreach (character; password)
-	{
-		counts[character]++;
-	}
+	const pos1 = password[policy.posAllowed - 1] == policy.character;
+	const pos2 = password[policy.posDisallowed - 1] == policy.character;
 
-	return (policy.character in counts) && counts[policy.character] >= policy.min && counts[policy.character] <= policy.max;
+	return pos1 ^ pos2;
 }
 
 unittest
 {
 	assert(isValid(Policy(1, 3, 'a'), "abcde"));
 	assert(!isValid(Policy(1, 3, 'b'), "cdefg"));
-	assert(isValid(Policy(2, 9, 'c'), "ccccccccc"));
+	assert(!isValid(Policy(2, 9, 'c'), "ccccccccc"));
 }
