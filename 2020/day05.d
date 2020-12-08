@@ -5,7 +5,16 @@ import std.stdio;
 
 void main()
 {
-	File("day05.input").byLineCopy.map!(a => a.findSeat).maxElement.writeln;
+	const seats = File("day05.input").byLineCopy.map!(a => a.findSeat).array;
+	uint[] notFound = [];
+	foreach (elem; iota(128 * 8))
+	{
+		if (!seats.canFind(elem))
+		{
+			notFound ~= elem;
+		}
+	}
+	notFound.filter!(a => seats.canFind(a - 1) && seats.canFind(a + 1)).writeln;
 }
 
 uint findRow(in string input)
