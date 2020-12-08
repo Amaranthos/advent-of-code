@@ -2,6 +2,7 @@ import std.algorithm;
 import std.array;
 import std.range;
 import std.stdio;
+import std.typecons;
 
 void main()
 {
