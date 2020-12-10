@@ -10,7 +10,9 @@ import std.typecons;
 
 void main()
 {
-	readText("day07.input").parseRules.count("shiny gold").writeln;
+	auto bags = readText("day07.input").parseRules;
+	bags.count("shiny gold").writeln;
+	bags.countContains("shiny gold").writeln;
 }
 
 struct Bag
@@ -45,8 +47,7 @@ Bag[string] parseRules(in string data)
 				assert(false, format("%s", a));
 			});
 		Bag bag;
-		foreach (
-			c; contains)
+		foreach (c; contains)
 		{
 			bag.contains[c[0]] = c[1];
 		}
@@ -63,7 +64,7 @@ Bag[string] parseRules(in string data)
 	return map;
 }
 
-ulong count(in Bag[string] bags, in string name)
+auto count(in Bag[string] bags, in string name)
 {
 	return bags.keys.filter!((bag) => bags.contains(bags[bag], name)).array.length;
 }
@@ -93,4 +94,32 @@ dotted black bags contain no other bags.";
 	const bags = rules.parseRules;
 	assert(bags.length == 9);
 	assert(bags.count("shiny gold") == 4);
+}
+
+uint countContains(in Bag[string] bags, in string name)
+{
+	uint total;
+	foreach (bag, count; bags[name].contains)
+	{
+		total += count;
+		if (bag == "no other") continue;
+		total += countContains(bags, bag) * count;
+	}
+	return total;
+}
+
+unittest
+{
+	const rules = "light red bags contain 1 bright white bag, 2 muted yellow bags.
+dark orange bags contain 3 bright white bags, 4 muted yellow bags.
+bright white bags contain 1 shiny gold bag.
+muted yellow bags contain 2 shiny gold bags, 9 faded blue bags.
+shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.
+dark olive bags contain 3 faded blue bags, 4 dotted black bags.
+vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.
+faded blue bags contain no other bags.
+dotted black bags contain no other bags.";
+	const bags = rules.parseRules;
+	bags.countContains("shiny gold").writeln;
+	assert(bags.countContains("shiny gold") == 32);
 }
