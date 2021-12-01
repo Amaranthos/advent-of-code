@@ -1,0 +1,19 @@
+{
+	"scaffold": {
+		"prefix": "scaffold",
+		"body": [
+			"import std.stdio;",
+			"",
+			"void main()",
+			"{",
+			"\twriteln(\"${TM_FILENAME_BASE/(day)(\\d+)/${1:/capitalize} $2/}...\");",
+			"}",
+			"",
+			"unittest",
+			"{",
+			"\tassert(true);",
+			"}"
+		],
+		"description": "Scaffold test"
+	}
+}

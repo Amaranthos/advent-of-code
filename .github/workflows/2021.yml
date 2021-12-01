@@ -1,0 +1,21 @@
+name: 2021 CI
+
+on:
+  push:
+    paths: 
+    - 2021/**
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use dmd
+        uses: dlang-community/setup-dlang@v1
+        with:
+          compiler: dmd-latest  
+      - run: dmd -unittest -run *.d
+        working-directory: "2021"
+
