@@ -14,9 +14,8 @@ void main()
 
 uint countPairsIncreasing(in uint[] depths)
 {
-	return depths.pairwise
-		.map!(a => a[0] < a[1])
-		.map!(to!uint)
+	return depths.slide(2)
+		.map!(a => a[0] < a[1] ? 1 : 0)
 		.reduce!"a + b";
 }
 
@@ -31,12 +30,10 @@ unittest
 
 uint countTripletsIncreasing(in uint[] depths)
 {
-	return depths.tripletwise
+	return depths.slide(3)
 		.map!(a => a[0] + a[1] + a[2])
-		.array
-		.pairwise
-		.map!(a => a[0] < a[1])
-		.map!(to!uint)
+		.slide(2)
+		.map!(a => a[0] < a[1] ? 1 : 0)
 		.reduce!"a + b";
 }
 
@@ -47,14 +44,4 @@ unittest
 	];
 	const count = countTripletsIncreasing(depths);
 	assert(count == 5, format!"Expected 5, received: %s"(count));
-}
-
-auto pairwise(T)(T[] a)
-{
-	return zip(a, a.dropOne);
-}
-
-auto tripletwise(T)(T[] a)
-{
-	return zip(a, a.dropOne, a.dropOne.dropOne);
 }
