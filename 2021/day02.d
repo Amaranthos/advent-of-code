@@ -19,22 +19,24 @@ void main()
 }
 
 alias Command = Tuple!(string, int);
+alias Position = Tuple!(int, "x", int, "depth", int, "aim");
 
-Tuple!(int, int) determinePosition(in Command[] commands)
+Position determinePosition(in Command[] commands)
 {
-	Tuple!(int, int) position;
+	Position position;
 	foreach (command; commands)
 	{
 		switch (command[0])
 		{
 		case "forward":
-			position[0] += command[1];
+			position.x += command[1];
+			position.depth += (position.aim * command[1]);
 			continue;
 		case "down":
-			position[1] += command[1];
+			position.aim += command[1];
 			continue;
 		case "up":
-			position[1] -= command[1];
+			position.aim -= command[1];
 			continue;
 		default:
 			assert(false, format!"Received command %s"(command[0]));
@@ -53,6 +55,7 @@ unittest
 
 	const pos = determinePosition(commands);
 
-	assert(pos[0] == 15, format!"Expected 15, received: %s"(pos[0]));
-	assert(pos[1] == 10, format!"Expected 15, received: %s"(pos[1]));
+	assert(pos.x == 15, format!"Expected 15, received: %s"(pos[0]));
+	assert(pos.depth == 60, format!"Expected 60, received: %s"(pos[1]));
+	assert(pos.aim == 10, format!"Expected 10, received: %s"(pos[1]));
 }
