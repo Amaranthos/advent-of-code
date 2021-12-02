@@ -48,9 +48,9 @@ Position determinePosition(in Command[] commands)
 unittest
 {
 	const Command[] commands = [
-		tuple("forward", 5), tuple("down", 5), tuple("forward", 8),
-		tuple("up", 3),
-		tuple("down", 8), tuple("forward", 2)
+		Command("forward", 5), Command("down", 5), Command("forward", 8),
+		Command("up", 3),
+		Command("down", 8), Command("forward", 2)
 	];
 
 	const pos = determinePosition(commands);
