@@ -35,12 +35,17 @@ void main()
 		file.readln();
 	}
 
-	playGame(input, boards).writeln;
+	// Part A
+	playGame(input, boards.dup).writeln;
+
+	// Part B
+	playUntilLastGame(input, boards.dup).writeln;
 }
 
 struct Board
 {
 	Tuple!(int, "number", bool, "marked")[5][5] board;
+	bool won = false;
 
 	this(int[][] input)
 	{
@@ -82,6 +87,8 @@ struct Board
 
 	bool checkForWin()
 	{
+		bool result = false;
+
 		// Check for rows
 		foreach (row; board)
 		{
@@ -93,7 +100,7 @@ struct Board
 
 			if (marked)
 			{
-				return true;
+				result = true;
 			}
 		}
 
@@ -108,11 +115,14 @@ struct Board
 
 			if (marked)
 			{
-				return true;
+				result = true;
 			}
 		}
 
-		return false;
+		if (result)
+			won = true;
+
+		return result;
 	}
 
 	unittest
@@ -211,6 +221,8 @@ int playRound(int drawn, ref Board[] boards)
 {
 	foreach (ref board; boards)
 	{
+		if (board.won)
+			continue;
 		board.playDrawn(drawn);
 		if (board.checkForWin())
 		{
@@ -220,7 +232,7 @@ int playRound(int drawn, ref Board[] boards)
 	return 0;
 }
 
-Result playGame(in int[] numbers, ref Board[] boards)
+Result playGame(in int[] numbers, Board[] boards)
 {
 	int score = 0;
 	foreach (drawn; numbers)
@@ -268,4 +280,61 @@ unittest
 
 	assert(result.drawn == 24, format!"Expected 4512, received: %s"(result.drawn));
 	assert(result.score == 4512, format!"Expected 4512, received: %s"(result.score));
+}
+
+Result playUntilLastGame(in int[] numbers, Board[] boards)
+{
+	ulong countWon = boards.length;
+	foreach (drawn; numbers)
+	{
+		foreach (ref board; boards)
+		{
+			if (board.won)
+				continue;
+			board.playDrawn(drawn);
+			if (board.checkForWin())
+			{
+				--countWon;
+				if (countWon == 0)
+					return Result(board.score(drawn), drawn);
+			}
+		}
+	}
+
+	return Result(0, 0);
+}
+
+unittest
+{
+	Board[] boards = [
+		Board([
+			[22, 13, 17, 11, 0],
+			[8, 2, 23, 4, 24],
+			[21, 9, 14, 16, 7],
+			[6, 10, 3, 18, 5],
+			[1, 12, 20, 15, 19]
+		]),
+		Board([
+			[3, 15, 0, 2, 22],
+			[9, 18, 13, 17, 5],
+			[19, 8, 7, 25, 23],
+			[20, 11, 10, 24, 4],
+			[14, 21, 16, 12, 6],
+		]),
+		Board([
+			[14, 21, 17, 24, 4],
+			[10, 16, 15, 9, 19],
+			[18, 8, 23, 26, 20],
+			[22, 11, 13, 6, 5],
+			[2, 0, 12, 3, 7],
+		])
+	];
+	const result = playUntilLastGame([
+		7, 4, 9, 5, 11, 17, 23, 2, 0, 14, 21, 24, 10, 16, 13, 6, 15, 25, 12, 22,
+		18, 20, 8, 19, 3, 26, 1
+	], boards);
+	import std.string : format;
+
+	assert(result.drawn == 13, format!"Expected 13, received: %s"(result.drawn));
+	assert(result.score == 1924, format!"Expected 1924, received: %s"(result.score));
 }
