@@ -48,13 +48,7 @@ long sim(in int[] seed, int days)
 		}
 	}
 
-	long sum = 0;
-	foreach (value; result)
-	{
-		sum += value;
-	}
-
-	return sum;
+	return result.sum;
 }
 
 unittest
