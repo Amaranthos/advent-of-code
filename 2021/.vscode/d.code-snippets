@@ -1,19 +1,27 @@
 {
-	"scaffold": {
-		"prefix": "scaffold",
-		"body": [
-			"import std.stdio;",
-			"",
-			"void main()",
-			"{",
-			"\twriteln(\"${TM_FILENAME_BASE/(day)(\\d+)/${1:/capitalize} $2/}...\");",
-			"}",
-			"",
-			"unittest",
-			"{",
-			"\tassert(true);",
-			"}"
-		],
-		"description": "Scaffold test"
-	}
+  "scaffold": {
+    "prefix": "scaffold",
+    "body": [
+      "import std.algorithm;",
+      "import std.conv;",
+      "import std.stdio;",
+      "import std.string;",
+      "",
+      "void main()",
+      "{",
+      "\twriteln(\"${TM_FILENAME_BASE/(day)(\\d+)/${1:/capitalize} $2/}...\");",
+      "}",
+      "",
+      "unittest",
+      "{",
+      "\tassert(true);",
+      "}"
+    ],
+    "description": "Scaffold test"
+  },
+  "assert": {
+    "prefix": "assert",
+    "body": "assert($1 == $2, format!\"Expected %s, received: %s\"($2, $3));",
+    "description": "assert w/ message"
+  }
 }
