@@ -10,8 +10,9 @@ void main()
 	File("day08.in", "r")
 		.byLine
 		.map!(to!string)
-		.array
-		.countDigits
+		.map!(parseLine)
+		.map!(solveMapping)
+		.sum
 		.writeln;
 }
 
@@ -42,78 +43,56 @@ unittest
 	assert(parsed[1] == expectedOutput, format!"Expected %s, received: %s"(expectedOutput, parsed[1]));
 }
 
-int[] findDigits(in string[] value)
+int solveMapping(Tuple!(Signal, Output) pair)
 {
+	const signal = pair[0].array;
+	const output = pair[1].array;
+
+	const one = signal.filter!(s => s.length == 2).array[0];
+	const four = signal.filter!(s => s.length == 4).array[0];
+
 	int[] digits;
-	foreach (digit; value)
+	foreach (digit; output)
 	{
 		switch (digit.length)
 		{
 		case 2:
 			digits ~= 1;
-			continue;
-		case 3:
-			digits ~= 7;
-			continue;
+			break;
 		case 4:
 			digits ~= 4;
-			continue;
+			break;
+		case 3:
+			digits ~= 7;
+			break;
 		case 7:
 			digits ~= 8;
-			continue;
+			break;
+
+		case 5:
+			digits ~= count!(a => four.canFind(a.to!string))(digit) == 2 ? 2 : count!(
+				a => one.canFind(a.to!string))(digit) == 2 ? 3 : 5;
+			break;
+
+		case 6:
+			digits ~= count!(a => four.canFind(a.to!string))(digit) == 4 ? 9 : count!(
+				a => one.canFind(a.to!string))(digit) == 2 ? 0 : 6;
+			break;
 
 		default:
-			continue;
+			assert(false, digit);
 		}
 	}
 
-	return digits;
+	return 1000 * digits[0] + 100 * digits[1] + 10 * digits[2] + digits[3];
 }
 
 unittest
 {
-	const Signal signal = [
-		"acedgfb", "cdfbe",
-		"gcdfa", "fbcad", "dab", "cefabd", "cdfgeb", "eafb", "cagedb", "ab"
-	];
+	const line = "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf";
+	const parsed = parseLine(line);
+	const value = parsed.solveMapping;
 
-	int[] digits = signal.findDigits;
-	int[] expectedDigits = [8, 7, 4, 1];
+	assert(value == 5353, format!"Expected %s, received: %s"(5353, value));
 
-	assert(digits == expectedDigits, format!"Expected %s, received: %s"(expectedDigits, digits));
-
-	const Output output = [
-		"ab", "fcadb", "cdfeb", "cdbaf"
-	];
-
-	digits = output.findDigits;
-	expectedDigits = [1];
-
-	assert(digits == expectedDigits, format!"Expected %s, received: %s"(expectedDigits, digits));
-}
-
-int countDigits(in string[] lines)
-{
-	return reduce!((count, digits) => count += digits.length)(0, lines.map!(parseLine)
-			.map!(line => line[1].findDigits));
-}
-
-unittest
-{
-	const input = [
-		"be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb | fdgacbe cefdb cefbgd gcbe",
-		"edbfga begcd cbg gc gcadebf fbgde acbgfd abcde gfcbed gfec | fcgedb cgb dgebacf gc",
-		"fgaebd cg bdaec gdafb agbcfd gdcbef bgcad gfac gcb cdgabef | cg cg fdcagb cbg",
-		"fbegcd cbd adcefb dageb afcb bc aefdc ecdab fgdeca fcdbega | efabcd cedba gadfec cb",
-		"aecbfdg fbg gf bafeg dbefa fcge gcbea fcaegb dgceab fcbdga | gecf egdcabf bgf bfgea",
-		"fgeab ca afcebg bdacfeg cfaedg gcfdb baec bfadeg bafgc acf | gebdcfa ecba ca fadegcb",
-		"dbcfg fgd bdegcaf fgec aegbdf ecdfab fbedc dacgb gdcebf gf | cefg dcbef fcge gbcadfe",
-		"bdfegc cbegaf gecbf dfcage bdacg ed bedf ced adcbefg gebcd | ed bcgafe cdgba cbgef",
-		"egadfb cdbfeg cegd fecab cgb gbdefca cg fgcdab egfdb bfceg | gbdfcae bgc cg cgb",
-		"gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce",
-	];
-
-	const count = input.countDigits;
-
-	assert(count == 26, format!"Expected %s, received: %s"(26, count));
 }
