@@ -9,7 +9,7 @@
       "",
       "void main()",
       "{",
-      "\twriteln(\"${TM_FILENAME_BASE/(day)(\\d+)/${1:/capitalize} $2/}...\");",
+      "\tFile(\"${TM_FILENAME_BASE/(day)(\\d+)/${1}${2}.in/}\", \"r\");",
       "}",
       "",
       "unittest",
