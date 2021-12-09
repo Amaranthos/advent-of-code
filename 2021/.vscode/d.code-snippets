@@ -9,7 +9,7 @@
       "",
       "void main()",
       "{",
-      "\tFile(\"${TM_FILENAME_BASE/(day)(\\d+)/${1}${2}.in/}\", \"r\");",
+      "\tFile(\"${TM_FILENAME_BASE}.in\", \"r\");",
       "}",
       "",
       "unittest",
@@ -21,7 +21,7 @@
   },
   "assert": {
     "prefix": "assert",
-    "body": "assert($1 == $2, format!\"Expected %s, received: %s\"($2, $3));",
+    "body": "assert($1 == $2, format!\"Expected %s, received: %s\"($2, $1));",
     "description": "assert w/ message"
   }
 }
