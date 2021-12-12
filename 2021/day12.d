@@ -44,7 +44,7 @@ Cave[const(string)] buildGraph(in string[] map)
 	return graph;
 }
 
-int find(in Cave[const(string)] graph, string[] path)
+int find(in Cave[const(string)] graph, string[] path, bool visitedTwice = false)
 {
 	string current = path[$ - 1];
 	if (current == "end")
@@ -55,9 +55,22 @@ int find(in Cave[const(string)] graph, string[] path)
 	int count;
 	foreach (name, cave; graph[current].linked)
 	{
-		if (name.toUpper == name || !path.canFind(name))
+		if (name.toUpper == name)
 		{
-			count += find(graph, path ~ [name]);
+			count += find(graph, path ~ [name], visitedTwice);
+		}
+		else if (name != "start")
+		{
+			if ((path.count(name) < 1))
+			{
+				count += find(graph, path ~ [name], visitedTwice);
+
+			}
+			else if (!visitedTwice)
+			{
+				count += find(graph, path ~ [name], true);
+
+			}
 		}
 	}
 	return count;
@@ -76,7 +89,7 @@ unittest
 	]);
 
 	assert(graph.length == 6);
-	assert(find(graph, ["start"]) == 10);
+	assert(find(graph, ["start"]) == 36);
 }
 
 class Cave
