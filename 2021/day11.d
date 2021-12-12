@@ -11,98 +11,112 @@ const ANSI_OFFSET = 48;
 
 void main()
 {
-	File("day11.in", "r")
+	const octi = File("day11.in", "r")
 		.byLine
 		.map!(to!string)
-		.array
+		.array;
+
+	octi
 		.countFlashes(100)
+		.writeln;
+
+	octi
+		.findSync
 		.writeln;
 }
 
 alias Coord = Tuple!(const ulong, const ulong);
 alias Octo = Tuple!(int, bool);
+
 int countFlashes(in string[] octi, in int steps)
 {
 	int count;
 	Octo[][] cells = octi.map!(row => row.map!(d => tuple(d.to!int - ANSI_OFFSET, false)).array)
 		.array;
-	const rows = octi.length;
-	const cols = octi[0].length;
-
-	Coord[] getNeighbours(in ulong rowIdx, in ulong colIdx)
-	{
-		Coord[] neighbours;
-		foreach (row; -1 .. 2)
-		{
-			const ny = rowIdx + row;
-			foreach (col; -1 .. 2)
-			{
-				const nx = colIdx + col;
-				if (row == 0 && col == 0)
-					continue;
-
-				if (ny < 0 || ny >= rows)
-					continue;
-				if (nx < 0 || nx >= cols)
-					continue;
-
-				neighbours ~= tuple(nx, ny);
-			}
-		}
-		return neighbours;
-	}
 
 	foreach (step; 0 .. steps)
 	{
-		// Increment
-		foreach (ref row; cells)
+		count += cells.step;
+	}
+
+	return count;
+}
+
+Coord[] getNeighbours(ref Octo[][] cells, in ulong y, in ulong x)
+{
+	Coord[] neighbours;
+	foreach (row; -1 .. 2)
+	{
+		const ny = y + row;
+		foreach (col; -1 .. 2)
 		{
-			foreach (ref octopus; row)
+			const nx = x + col;
+			if (row == 0 && col == 0)
+				continue;
+
+			if (ny < 0 || ny >= cells.length)
+				continue;
+			if (nx < 0 || nx >= cells[0].length)
+				continue;
+
+			neighbours ~= tuple(nx, ny);
+		}
+	}
+	return neighbours;
+}
+
+int step(ref Octo[][] cells)
+{
+	int count;
+
+	// Increment
+	foreach (ref row; cells)
+	{
+		foreach (ref octopus; row)
+		{
+			++octopus[0];
+		}
+	}
+
+	// Check for flashes
+	Coord[] stack;
+	foreach (y, row; cells)
+	{
+		foreach (x, ref octopus; row)
+		{
+			if (octopus[0] > 9)
 			{
-				++octopus[0];
+				octopus[1] = true;
+				stack ~= cells.getNeighbours(y, x);
 			}
 		}
+	}
 
-		// Check for flashes
-		Coord[] stack;
-		foreach (y, row; cells)
+	while (!stack.empty)
+	{
+		auto coords = stack.back;
+		stack.popBack;
+
+		auto octo = &cells[coords[1]][coords[0]];
+
+		++((*octo)[0]);
+		if ((*octo)[0] > 9 && !(*octo)[1])
 		{
-			foreach (x, ref octopus; row)
-			{
-				if (octopus[0] > 9)
-				{
-					octopus[1] = true;
-					stack ~= getNeighbours(y, x);
-				}
-			}
+			(*octo)[1] = true;
+			stack ~= cells.getNeighbours(coords[1], coords[0]);
 		}
+	}
 
-		while (!stack.empty)
+	// Reset levels
+	foreach (row; cells)
+	{
+		foreach (ref octopus; row)
 		{
-			auto coords = stack.back;
-			stack.popBack;
-
-			auto octo = &cells[coords[1]][coords[0]];
-
-			++((*octo)[0]);
-			if ((*octo)[0] > 9 && !(*octo)[1])
+			octopus[1] = false;
+			if (octopus[0] > 9)
 			{
-				(*octo)[1] = true;
-				stack ~= getNeighbours(coords[1], coords[0]);
-			}
-		}
-
-		// Reset levels
-		foreach (row; cells)
-		{
-			foreach (ref octopus; row)
-			{
-				octopus[1] = false;
-				if (octopus[0] > 9)
-				{
-					++count;
-					octopus[0] = 0;
-				}
+				++count;
+				octopus[0] = 0;
 			}
 		}
 	}
@@ -138,4 +152,37 @@ unittest
 
 	const count100 = countFlashes(octi, 100);
 	assert(count100 == 1656, format!"Expected %s, received: %s"(1656, count100));
+}
+
+int findSync(in string[] octi)
+{
+	Octo[][] cells = octi.map!(row => row.map!(d => tuple(d.to!int - ANSI_OFFSET, false)).array)
+		.array;
+
+	int count = 1;
+	while (cells.step != (cells.length * cells[0].length))
+	{
+		++count;
+	}
+
+	return count;
+}
+
+unittest
+{
+	const octi = [
+		"5483143223",
+		"2745854711",
+		"5264556173",
+		"6141336146",
+		"6357385478",
+		"4167524645",
+		"2176841721",
+		"6882881134",
+		"4846848554",
+		"5283751526",
+	];
+
+	const steps = findSync(octi);
+	assert(steps == 195, format!"Expected %s, received: %s"(195, steps));
 }
