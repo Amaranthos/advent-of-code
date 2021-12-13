@@ -30,80 +30,78 @@ void main()
 				.map!(to!int)
 				.array)
 		.array
-		.fold(folds, 1)
-		.writeln;
+		.fold(folds, folds.length);
 }
 
-int fold(int[][] dots, in Tuple!(string, int)[] folds, int numFolds)
+void fold(int[][] dots, in Tuple!(string, int)[] folds, ulong numFolds)
 {
-	const initCols = dots.map!(d => d[0]).maxElement + 1;
-	uint cols = initCols;
-	uint rows = dots.map!(d => d[1]).maxElement + 1;
-
-	bool[] map = new bool[](rows * cols);
+	bool[][] map = new bool[][](
+		dots.map!(d => d[1]).maxElement + 1,
+		dots.map!(d => d[0]).maxElement + 1
+	);
 
 	foreach (dot; dots)
 	{
-		map[dot[1] * cols + dot[0]] = true;
+		map[dot[1]][dot[0]] = true;
 	}
 
-	foreach (fold; folds[0 .. numFolds])
+	foreach (idx, fold; folds[0 .. numFolds])
 	{
+		const ulong value = fold[1];
 		switch (fold[0])
 		{
-		case "x":
-			const col = fold[1];
-			foreach (y; 0 .. rows)
+		case "y":
+			foreach (y; 0 .. value)
 			{
-				foreach (x; 0 .. col)
+				foreach (x; 0 .. map[y].length)
 				{
-					map[y * initCols + x] |= map[y * initCols + (cols - 1 - x)];
+					if (2 * value - y < map.length)
+					{
+						map[y][x] |= map[(2 * value) - y][x];
+					}
 				}
 			}
-			cols = col;
+			map.length = value;
 			break;
 
-		case "y":
-			const row = fold[1];
-			foreach (y; 0 .. row)
+		case "x":
+			foreach (y; 0 .. map.length)
 			{
-				foreach (x; 0 .. cols)
+				foreach (x; 0 .. value)
 				{
-					map[y * cols + x] |= map[(
-							rows - 1 - y) * cols + x];
+					map[y][x] |= map[y][(2 * value) - x];
 				}
+				map[y].length = value;
 			}
-			rows = row;
 			break;
 
 		default:
 			assert(false, fold[0]);
 		}
 
-		version (unittest)
+		if (idx == 0)
 		{
-			writeln;
-			foreach (y; 0 .. rows)
+			int count;
+			foreach (row; map)
 			{
-				foreach (x; 0 .. cols)
+				foreach (cell; row)
 				{
-					write(map[y * initCols + x] ? "#" : ".");
+					count += cell ? 1 : 0;
 				}
-				writeln;
 			}
+			count.writeln;
 		}
 	}
 
-	int count;
-	foreach (y; 0 .. rows)
+	writeln;
+	foreach (row; map)
 	{
-		foreach (x; 0 .. cols)
+		foreach (cell; row)
 		{
-			count += map[y * initCols + x] ? 1 : 0;
+			write(cell ? "█" : "░");
 		}
+		writeln;
 	}
-
-	return count;
 }
 
 unittest
