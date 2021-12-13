@@ -3,9 +3,11 @@
     "prefix": "scaffold",
     "body": [
       "import std.algorithm;",
+      "import std.array;",
       "import std.conv;",
       "import std.stdio;",
       "import std.string;",
+      "import std.typecons;",
       "",
       "void main()",
       "{",
