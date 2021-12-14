@@ -16,92 +16,82 @@ void main()
 		.map!(a => Rule(a[0], a[1]))
 		.array;
 
-	const polymer = polymerTemplate.applyRules(rules, 10);
-	const occurances = polymer.countOccurances;
-
-	(occurances[0][1] - occurances[1][1]).writeln;
+	sim(polymerTemplate, rules, 40).writeln;
 }
 
 alias Rule = Tuple!(string, string);
 
-string applyRules(in string polymerTemplate, in Rule[] rules, in ulong numSteps)
-in (numSteps <= rules.length)
+long sim(in string polymerTemplate, in Rule[] rules, in ulong numSteps)
 {
-	string polymer = polymerTemplate.dup;
+	long[string] freq;
+	foreach (window; polymerTemplate.slide(2))
+	{
+		++freq[window.to!string];
+	}
+
+	string[][string] patterns;
+	foreach (rule; rules)
+	{
+		patterns[rule[0]] = [
+			format!"%s%s"(rule[0][0], rule[1]),
+			format!"%s%s"(rule[1], rule[0][1])
+		];
+	}
 
 	foreach (step; 0 .. numSteps)
 	{
-		string edit = "" ~ polymer[0];
-		foreach (idx; 1 .. polymer.length)
+		long[string] nextFreq;
+		foreach (key, value; freq.dup)
 		{
-			const a = polymer[idx - 1];
-			const b = polymer[idx];
-
-			foreach (rule; rules)
+			foreach (nextPair; patterns[key])
 			{
-				if (rule[0] == [a, b])
-				{
-					edit ~= rule[1];
-				}
+				nextFreq[nextPair] += value;
 			}
-
-			edit ~= b;
 		}
-		polymer = edit;
+		freq = nextFreq;
 	}
 
-	return polymer;
-}
-
-alias Occurances = Tuple!(Tuple!(char, ulong), "max", Tuple!(char, ulong), "min");
-Occurances countOccurances(in string polymer)
-{
-	ulong[char] counts;
-	foreach (element; polymer)
+	long[char] counts;
+	++counts[polymerTemplate[0]];
+	foreach (key, value; freq)
 	{
-		counts[element] = polymer.count(element);
+		if (key[1] in counts)
+		{
+			counts[key[1]] += value;
+		}
+		else
+		{
+			counts[key[1]] = value;
+		}
 	}
 
 	const max = counts.byKeyValue.maxElement!(
 		v => v.value);
 	const min = counts.byKeyValue.minElement!(
 		v => v.value);
-	return Occurances(
-		tuple(max.key, max.value),
-		tuple(min.key, min.value)
-	);
+
+	return max.value - min.value;
 }
 
 unittest
 {
-	const polymerTemplate = "NNCB";
-	const rules = [
-		Rule("CH", "B"),
-		Rule("HH", "N"),
-		Rule("CB", "H"),
-		Rule("NH", "C"),
-		Rule("HB", "C"),
-		Rule("HC", "B"),
-		Rule("HN", "C"),
-		Rule("NN", "C"),
-		Rule("BH", "H"),
-		Rule("NC", "B"),
-		Rule("NB", "B"),
-		Rule("BN", "B"),
-		Rule("BB", "N"),
-		Rule("BC", "B"),
-		Rule("CC", "N"),
-		Rule("CN", "C"),
-	];
-	assert(applyRules(polymerTemplate, rules, 1) == "NCNBCHB");
-	assert(applyRules(polymerTemplate, rules, 2) == "NBCCNBBBCBHCB");
-	assert(applyRules(polymerTemplate, rules, 3) == "NBBBCNCCNBBNBNBBCHBHHBCHB");
-	assert(applyRules(polymerTemplate, rules, 4) == "NBBNBNBBCCNBCNCCNBBNBBNBBBNBBNBBCBHCBHHNHCBBCBHCB");
-
-	const polymer = applyRules(polymerTemplate, rules, 10);
-	const occurances = countOccurances(
-		polymer);
-	assert(occurances == Occurances(tuple('B', 1749.to!ulong), tuple('H', 161.to!ulong)), format!"Expected %-(%s,%s%), received: %-(%s,%s%)"(
-			Occurances(tuple('B', 1749
-			.to!ulong), tuple('H', 161.to!ulong)), occurances));
+	assert(
+		sim("NNCB", [
+				Rule("CH", "B",),
+				Rule("HH", "N",),
+				Rule("CB", "H",),
+				Rule("NH", "C",),
+				Rule("HB", "C",),
+				Rule("HC", "B",),
+				Rule("HN", "C",),
+				Rule("NN", "C",),
+				Rule("BH", "H",),
+				Rule("NC", "B",),
+				Rule("NB", "B",),
+				Rule("BN", "B",),
+				Rule("BB", "N",),
+				Rule("BC", "B",),
+				Rule("CC", "N",),
+				Rule("CN", "C",)
+			], 10) == 1588);
 }
