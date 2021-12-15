@@ -13,7 +13,8 @@ void main()
 	const tiles = File("day15.in", "r")
 		.byLine
 		.map!(line => line.map!(d => (d.to!int - ANSI_OFFSET)).array)
-		.array;
+		.array
+		.expandTiles;
 
 	reduce!((cost, tile) => cost + tiles[tile.y][tile.x])(0, tiles.findShortestPath).writeln;
 }
@@ -111,4 +112,52 @@ Tile[] neighbours(in Tile current, in int[][] tiles)
 	}
 
 	return neighbours;
+}
+
+int[][] expandTiles(in int[][] tiles)
+{
+	const rows = tiles.length;
+	const cols = tiles[0].length;
+	int[][] expanded;
+	expanded.length = rows * 5;
+
+	foreach (y, row; tiles)
+	{
+		foreach (x, tile; row)
+		{
+			foreach (dy; 0 .. 5)
+			{
+				expanded[y + dy * rows].length = cols * 5;
+				foreach (dx; 0 .. 5)
+				{
+					int cost = (tile + 1 * dx + 1 * dy);
+					while ((cost - 9) > 0)
+					{
+						cost -= 9;
+					}
+
+					expanded[y + dy * rows][x + dx * cols] = cost;
+				}
+			}
+		}
+	}
+
+	return expanded;
+}
+
+unittest
+{
+	const tiles = [
+		[1, 1, 6, 3, 7, 5, 1, 7, 4, 2],
+		[1, 3, 8, 1, 3, 7, 3, 6, 7, 2],
+		[2, 1, 3, 6, 5, 1, 1, 3, 2, 8],
+		[3, 6, 9, 4, 9, 3, 1, 5, 6, 9],
+		[7, 4, 6, 3, 4, 1, 7, 1, 1, 1],
+		[1, 3, 1, 9, 1, 2, 8, 1, 3, 7],
+		[1, 3, 5, 9, 9, 1, 2, 4, 2, 1],
+		[3, 1, 2, 5, 4, 2, 1, 6, 3, 9],
+		[1, 2, 9, 3, 1, 3, 8, 5, 2, 1],
+		[2, 3, 1, 1, 9, 4, 4, 5, 8, 1],
+	];
+	tiles.expandTiles.writefln!"%(%(%s%)\n%)";
 }
