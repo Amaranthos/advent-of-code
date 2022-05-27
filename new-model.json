@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "title": "New threat model"
+  },
+  "detail": {
+    "contributors": [],
+    "diagrams": [
+      {
+        "title": "#1",
+        "thumbnail": "./public/content/images/thumbnail.stride.jpg",
+        "diagramType": "STRIDE",
+        "id": 0,
+        "$$hashKey": "object:311"
+      }
+    ]
+  }
+}
